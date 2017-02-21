@@ -1,0 +1,34 @@
+
+<!doctype html>
+<html lang="en" data-ng-app="BeMEAN">
+<head>
+  <meta charset="UTF-8">
+  <title>Be MEAN</title>
+</head>
+<body data-ng-controller="UserController">
+  <h1>{{ titulo }}</h1>
+
+  <ul>
+    <li data-ng-repeat="user in users">
+      {{ user.name }} - {{ user.email }}
+    </li>
+  </ul>
+
+  <script src="./../libs/angular.min.js"></script>
+  <script>
+    angular.module('BeMEAN', [])
+      .controller('UserController', UserController);
+
+    function UserController($scope) {
+      $scope.titulo = 'BeMEAN';
+      $scope.users = [
+        {name: 'Suissa', email: 'suissera@manoveio.com'}
+      , {name: 'João', email: 'joao@macioesedoso.com'}
+      , {name: 'Franciele', email: 'fran@quimica.com'}
+      ];
+    }
+    UserController['$inject'] = ['$scope']; //Injetando as dependencias do controllers
+
+  </script>
+</body>
+</html>

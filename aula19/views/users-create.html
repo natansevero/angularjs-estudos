@@ -1,0 +1,25 @@
+<select data-ng-model="User.selected"
+data-ng-options="user.email as user.name for user in User.users">
+  <option value="">Usuarios</option>
+</select>
+<p> model: {{ User.selected }}</p>
+
+<form name="User.userForm" data-ng-submit="User.submitForm(User.form)">
+  <div data-ng-class="{'invalid': User.userForm.name.$invalid && !User.userForm.name.$pristine,
+'dirty': User.userForm.name.$dirty}">
+    <input type="text" name="name" data-ng-model="User.form.name" data-ng-minlength="3" placeholder="Name" required>
+  </div>
+  <div data-ng-class="{'invalid': User.userForm.email.$invalid && !User.userForm.email.$pristine,
+'dirty': User.userForm.email.$dirty}">
+    <input type="text" name="email" data-ng-model="User.form.email" placeholder="Email" required>
+  </div>
+
+  <div data-ng-messages="User.userForm.name.$error">
+    <p data-ng-message="required">Nome é obrigatório!</p>
+    <p data-ng-message="minlength">Nome precisa ser maior ou igual a 3 letras</p>
+  </div>
+
+  <button ng-disabled="User.editing || User.userForm.name.$pristine" class="btn btn-large green waves-effect waves-light col s12" type="submit" name="action">
+    ADD
+  </button>
+</form>

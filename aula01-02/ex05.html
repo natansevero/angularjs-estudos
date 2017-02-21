@@ -1,0 +1,36 @@
+
+<!doctype html>
+<html lang="en" data-ng-app="BeMEAN">
+<head>
+  <meta charset="UTF-8">
+  <title>Be MEAN</title>
+</head>
+<body>
+  <label for="nome">Seu nome:
+    <input type="text" name="nome" data-ng-model="nome">
+  </label>
+
+  Olá mundo, {{ nome | truncate:5:" veja mais" }}
+
+  <script src="./../libs/angular.min.js"></script>
+  <script type="text/javascript">
+    angular.module('BeMEAN', [])
+      .filter('reverseString', () => {
+        return function(text) {
+          if(text) return text.split("").reverse().join("");
+        }
+      })
+      //Vamos travar a string quando ele tiver em um determinado tamanho
+      .filter('truncate', () => {
+        return function(text, length, end) {
+          if(text) {
+            if(isNaN(length)) length = 10; //Se não for passado um numero, setaremos um valor padrão
+            if(end === undefined) end = "...";
+            if(text.length <= length) return text;
+            else return String(text).substring(0, length) + end;
+          }
+        }
+      })
+  </script>
+</body>
+</html>

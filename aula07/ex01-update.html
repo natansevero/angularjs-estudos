@@ -1,0 +1,119 @@
+
+<!doctype html>
+<html lang="en" data-ng-app="BeMEAN">
+<head>
+  <meta charset="UTF-8">
+  <title>Be MEAN</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css">
+  <style>
+    .wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+
+<body data-ng-controller="UserController as User">
+  <div class="row wrapper">
+    <h1>{{ User.titulo }}</h1>
+    <p class="col s12">
+      <label> Name:
+        <input type="text" data-ng-model="User.form.name"> <br>
+      </label>
+      <label> Email:
+        <input type="email" data-ng-model="User.form.email">
+      </label>
+    </p>
+    <button data-ng-click="User.add(User.form)" class="btn btn-large green waves-effect waves-light col s6" type="submit" name="action">
+      ADD
+    </button>
+    <button data-ng-click="User.save(User.form)" class="btn btn-large blue waves-effect waves-light col s6" type="submit" name="action">
+      SAVE
+    </button>
+
+    <span data-ng-init=" predicate = 'name' "></span>
+
+    <table>
+      <thead>
+        <tr>
+          <th colspan="{{ User.keysLength + 1}}">
+            <label>Busca: <input type="text" data-ng-model="searchUser"></label>
+          </th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-ng-repeat="user in User.users | filter:searchUser ">
+          <td>
+            <!-- {{ $index }} => É do nosso ng-repeat -->
+            <input type="checkbox" id="user-{{$index}}" ng-model="user.selecionado" />
+            <label for="user-{{$index}}"></label>
+          </td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <button data-ng-click="User.edit(user, $index)" class="btn btn-large orange waves-effect waves-light col s12" type="submit" name="action">
+              EDIT
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button data-ng-click="User.remove(User.users)" class="btn btn-large red waves-effect waves-light col s12" type="submit" name="action">Remove
+    </button>
+  </div> <!-- row wrapper -->
+
+  <script src="./../libs/angular.min.js"></script>
+  <script>
+    angular.module('BeMEAN', [])
+      .controller('UserController', UserController);
+
+    function UserController() {
+      var vm = this;
+      vm.titulo = 'BeMEAN - Usuarios';
+      vm.users = [
+        {name: 'Suissa', email: 'suissera@manoveio.com'}
+      , {name: 'João', email: 'joao@macioesedoso.com'}
+      , {name: 'Franciele', email: 'fran@quimica.com'}
+      ];
+      function getKeyLength(){
+        return Object.keys(angular.copy(vm.users[0])).length;
+      }
+      vm.keysLength = getKeyLength();
+
+      vm.add = add;
+      function add(user) {
+        console.log('user', user);
+        vm.users.push(angular.copy(user));
+      }
+
+      vm.remove = removeByEmail;
+      function removeByEmail(users){
+        vm.users = users.filter((el) => { return !el.selecionado })
+      }
+
+      vm.edit = edit;
+      function edit(user, index){
+        vm.form = angular.copy(user);
+        vm.form.index = index;
+      }
+
+      vm.save = save;
+      function save(user){
+        var users = vm.users.map((el, i) => {
+          if(i === user.index) {
+            delete user.index;
+            return user;
+          }
+          return el;
+        });
+        vm.users = angular.copy(users);
+      }
+    }
+  </script>
+</body>
+</html>

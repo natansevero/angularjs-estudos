@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en" data-ng-app="BeMEAN">
+<head>
+  <meta charset="UTF-8">
+  <title>Be MEAN</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css">
+  <style>
+    html body select {
+      display: inline-block;
+    }
+
+    [disabled] {
+      background-color: #ccc !important;
+    }
+
+    .wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .animate {
+      transition: all linear 0.5s;
+    }
+    /* Classe de animação do Angular Animate. Essa classe não chamaremos no HTML */
+    .ng-hide {
+      height: 0;
+    }
+
+    /* .ng-enter => Quando o elemento entrar no DOM */
+    .item.ng-enter { /* Transição */
+      -webkit-transition:all linear 0.5s;
+      transition:all linear 0.5s;
+    }
+    .item.ng-enter { /*Estado inicial*/
+      opacity:0;
+    }
+    .item.ng-enter.ng-enter-active { /*Estado final, com ng-{ação}-active*/
+      font-size: 1.2em;
+      color: green;
+      font-weight: bold;
+      opacity:1;
+    }
+
+    /* .ng-leave => Quando o elemento sair do DOM */
+    .item.ng-leave { /* Transição */
+      -webkit-transition:all linear 0.5s;
+      transition:all linear 0.5s;
+    }
+    .item.ng-leave { /*Estado inicial*/
+      font-size: 0.9em;
+      color: red;
+      opacity:1;
+    }
+    .item.ng-leave.ng-leave-active { /*Estado final, com ng-{ação}-active*/
+      opacity:0;
+    }
+
+    /* .ng-move => Quando um elemento é movido de sua posição. Normalmente usado no ng-repeat*/
+    .item.ng-move { /* Transição */
+      -webkit-transition:all linear 0.5s;
+      transition:all linear 0.5s;
+    }
+
+    .item.ng-move { /* Estado Inicial */
+      opacity: 0;
+    }
+
+    .item.ng-move.ng-move-action { /* Estado Final */
+      opacity: 1;
+    }
+
+    .atom-titulo {
+      color : #D0BB00;
+      font-size : 80px;
+      text-align : center;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+
+    .strike {
+      text-decoration: line-through;
+    }
+
+    .ng-valid {
+      background-color: #B4E5C4;
+    }
+    .dirty {
+      background-color: #ccc;
+    }
+    .invalid {
+      background-color: red;
+    }
+  </style>
+</head>
+
+<body data-ng-controller="UserController as User">
+  <div class="row wrapper">
+    <h1 data-ng-class="User.getTituloStyle()">{{ User.titulo }}</h1>
+
+    <select data-ng-model="User.selected"
+    data-ng-options="user.email as user.name for user in User.users">
+      <option value="">Usuarios</option>
+    </select>
+    <p> model: {{ User.selected }}</p>
+
+    <form name="User.userForm" data-ng-submit="User.submitForm(User.form)">
+      <div data-ng-class="{'invalid': User.userForm.name.$invalid && !User.userForm.name.$pristine,
+    'dirty': User.userForm.name.$dirty}">
+        <input type="text" name="name" data-ng-model="User.form.name" placeholder="Name" required>
+      </div>
+      <div data-ng-class="{'invalid': User.userForm.email.$invalid && !User.userForm.email.$pristine,
+    'dirty': User.userForm.email.$dirty}">
+        <input type="text" name="email" data-ng-model="User.form.email" placeholder="Email" required>
+      </div>
+
+      <button ng-disabled="User.editing || User.userForm.name.$pristine" class="btn btn-large green waves-effect waves-light col s12" type="submit" name="action">
+        ADD
+      </button>
+      <button data-ng-if="User.editing" data-ng-click="User.save(User.form)" class="btn btn-large animate blue waves-effect waves-light col s12" type="submit" name="action">
+        SAVE
+      </button>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th colspan="4">
+            <label>Busca: <input type="text" data-ng-model="searchUser"></label>
+          </th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-ng-class="{ bold: !user.selecionado, strike: user.selecionado  }" class="item" data-ng-repeat="user in User.users | filter:searchUser | orderBy:User.predicate:User.reverse ">
+          <td>
+            <!-- {{ $index }} => É do nosso ng-repeat -->
+            <input type="checkbox" id="user-{{$index}}" ng-model="user.selecionado" />
+            <label for="user-{{$index}}"></label>
+          </td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <button data-ng-click="User.edit(user, $index)" class="btn btn-large orange waves-effect waves-light col s12" type="submit" name="action">
+              EDIT
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button data-ng-click="User.orderByName()" class="btn btn-large animate black waves-effect waves-light col s12" type="submit" name="action">
+      ORDER NAME
+    </button>
+    <button data-ng-click="User.orderByEmail()" class="btn btn-large animate black waves-effect waves-light col s12" type="submit" name="action">
+      ORDER EMAIL
+    </button>
+    <p>
+      {{ User.predicate }}
+    </p>
+    <button data-ng-click="User.remove(User.users)" class="btn btn-large red waves-effect waves-light col s12" type="submit" name="action">
+      REMOVE
+    </button>
+  </div> <!-- row wrapper -->
+
+  <script src="./../libs/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
+  <script>
+    angular.module('BeMEAN', ['ngAnimate'])
+      .controller('UserController', UserController);
+
+    function UserController() {
+      var vm = this;
+      vm.titulo = 'BeMEAN - Usuarios';
+      vm.aditing = false;
+      vm.reverse = false;
+      vm.getTituloStyle = function() { return "atom-titulo"; };
+      vm.users = [
+        {name: 'Suissa', email: 'suissera@manoveio.com', type: 'teacher', active: true}
+      , {name: 'João', email: 'joao@macioesedoso.com', type: 'student', active: false}
+      , {name: 'Franciele', email: 'fran@quimica.com', type: 'teacher', active: false}
+      , {name: 'Maria', email: 'm@gmail.com', type: 'student', active: true}
+      , {name: 'José', email: 'js@gmail.com', type: 'student', active: true}
+      ];
+      function getKeyLength(){
+        return Object.keys(angular.copy(vm.users[0])).length;
+      }
+      vm.keysLength = getKeyLength();
+
+      vm.add = add;
+      function add(user) {
+        console.log('user', user);
+        vm.users.push(angular.copy(user));
+        vm.form = {};
+      }
+
+      vm.remove = removeByEmail;
+      function removeByEmail(users){
+        vm.users = users.filter((el) => { return !el.selecionado })
+      }
+
+      vm.edit = edit;
+      function edit(user, index){
+        vm.form = angular.copy(user);
+        vm.form.index = index;
+        vm.editing = true;
+      }
+
+      vm.save = save;
+      function save(user){
+        var users = vm.users.map((el, i) => {
+          if(i === user.index) {
+            delete user.index;
+            return user;
+          }
+          return el;
+        });
+        vm.users = angular.copy(users);
+        vm.editing = false;
+        vm.form = {};
+      }
+
+      vm.orderByName = orderByName;
+      function orderByName() {
+        vm.predicate = 'name';
+        vm.reverse = !vm.reverse;
+      }
+
+      vm.orderByEmail = orderByEmail;
+      function orderByEmail() {
+        vm.predicate = 'email';
+        vm.reverse = !vm.reverse;
+      }
+
+      vm.submitForm = submitForm;
+      function submitForm(user) {
+        add(user);
+      }
+    }
+  </script>
+</body>
+</html>

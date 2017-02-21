@@ -1,0 +1,31 @@
+<select data-ng-model="UserEdit.selected" data-ng-options="user.email as user.name for user in UserEdit.users">
+  <option value="">Usuarios</option>
+</select>
+<p> model: {{ User.selected }}</p>
+
+<p>
+  Name: {{ UserEdit.users[UserEdit.routeParams.id].name }} <br>
+  Email: {{ UserEdit.users[UserEdit.routeParams.id].email }}
+</p>
+
+<form name="UserEdit.userForm" data-ng-submit="UserEdit.submitForm(UserEdit.form)">
+  <div data-ng-class="{'invalid': UserEdit.userForm.name.$invalid && !UserEdit.userForm.name.$pristine,
+'dirty': UserEdit.userForm.name.$dirty}">
+    <input type="text" name="name" data-ng-model="UserEdit.form.name"
+    data-ng-minlength="3" placeholder="Name" value="{{ UserEdit.users[UserEdit.routeParams.id].name }}" required>
+  </div>
+  <div data-ng-class="{'invalid': UserEdit.userForm.email.$invalid && !UserEdit.userForm.email.$pristine,
+'dirty': UserEdit.userForm.email.$dirty}">
+    <input type="text" name="email" data-ng-model="UserEdit.form.email" placeholder="Email"
+    value="{{ UserEdit.users[UserEdit.routeParams.id].email }}" required>
+  </div>
+
+  <div data-ng-messages="UserEdit.userForm.name.$error">
+    <p data-ng-message="required">Nome é obrigatório!</p>
+    <p data-ng-message="minlength">Nome precisa ser maior ou igual a 3 letras</p>
+  </div>
+
+  <button data-ng-if="!UserEdit.editing" data-ng-click="User.save(User.form)" class="btn btn-large animate blue waves-effect waves-light col s12" type="submit" name="action">
+    SAVE
+  </button>
+</form>
